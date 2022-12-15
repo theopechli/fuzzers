@@ -27,8 +27,7 @@ def fuzz(thread_id: int, input: bytearray, binary: str, output: str):
         if ret == -11:
             open(os.path.join(
                 output, f"crash_{hashlib.sha256(input).hexdigest():64}"),
-                 "wb").write(input)
-            exit()
+                "wb").write(input)
 
 
 parser = ArgumentParser()
