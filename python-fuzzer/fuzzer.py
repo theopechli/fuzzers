@@ -8,7 +8,7 @@ import os
 from argparse import ArgumentParser
 
 
-def fuzz(thread_id: int, input: bytearray, binary: str):
+def fuzz(thread_id: int, input: bytearray, binary: str, output: str):
     assert isinstance(thread_id, int)
     assert isinstance(input, bytearray)
 
@@ -26,7 +26,7 @@ def fuzz(thread_id: int, input: bytearray, binary: str):
 
         if ret == -11:
             open(os.path.join(
-                "crashes", f"crash_{hashlib.sha256(input).hexdigest():64}"),
+                output, f"crash_{hashlib.sha256(input).hexdigest():64}"),
                  "wb").write(input)
             exit()
 
@@ -38,12 +38,15 @@ parser.add_argument("-b", "--binary", dest="binary", required=True, type=str,
                     help="binary to fuzz (fuzz target)")
 parser.add_argument("-f", "--flag", dest="flag", required=True, type=str,
                     help="flag passed to the binary (no dashes, full flag)")
+parser.add_argument("-o", "--output", dest="output", required=True, type=str,
+                    help="output directory to save crashes (full path)")
 
 args = parser.parse_args()
 
 corpus_filenames = glob.glob(args.corpus + "/*")
 binary = args.binary
 flag = "--" + args.flag
+output = args.output
 
 corpus = set()
 for filename in corpus_filenames:
@@ -65,7 +68,7 @@ def worker(thread_id):
         for _ in range(random.randint(1, 8)):
             input[random.randint(0, len(input) - 1)] = random.randint(0, 255)
 
-        fuzz(thread_id, input, binary)
+        fuzz(thread_id, input, binary, output)
 
         cases += 1
 
