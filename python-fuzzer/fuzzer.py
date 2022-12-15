@@ -39,6 +39,8 @@ parser.add_argument("-f", "--flag", dest="flag", required=True, type=str,
                     help="flag passed to the binary (no dashes, full flag)")
 parser.add_argument("-o", "--output", dest="output", required=True, type=str,
                     help="output directory to save crashes (full path)")
+parser.add_argument("-t", "--threads", dest="thread_count", required=False,
+                    type=int, default=1, help="total number of threads")
 
 args = parser.parse_args()
 
@@ -46,6 +48,7 @@ corpus_filenames = glob.glob(args.corpus + "/*")
 binary = args.binary
 flag = "--" + args.flag
 output = args.output
+thread_count = args.thread_count
 
 corpus = set()
 for filename in corpus_filenames:
@@ -79,7 +82,7 @@ def worker(thread_id):
             print(f"[{time_elapsed:<10.4f}] cases {cases:10} | fcps {fcps:10.4f}")
 
 
-for thread_id in range(1):
+for thread_id in range(thread_count):
     threading.Thread(target=worker, args=[thread_id]).start()
 
 
