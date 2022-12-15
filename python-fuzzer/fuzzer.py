@@ -3,6 +3,8 @@ import subprocess
 import random
 import time
 import threading
+import hashlib
+import os
 from argparse import ArgumentParser
 
 
@@ -21,6 +23,12 @@ def fuzz(thread_id: int, input: bytearray, binary: str):
 
     if ret != 0:
         print(f"Exited with {ret}")
+
+        if ret == -11:
+            open(os.path.join(
+                "crashes", f"crash_{hashlib.sha256(input).hexdigest():64}"),
+                 "wb").write(input)
+            exit()
 
 
 parser = ArgumentParser()
@@ -65,10 +73,11 @@ def worker(thread_id):
 
         fcps = float(cases) / time_elapsed
 
-        print(f"[{time_elapsed:<10.4f}] cases {cases:10} | fcps {fcps:10.4f}")
+        if thread_id == 0:
+            print(f"[{time_elapsed:<10.4f}] cases {cases:10} | fcps {fcps:10.4f}")
 
 
-for thread_id in range(4):
+for thread_id in range(1):
     threading.Thread(target=worker, args=[thread_id]).start()
 
 
