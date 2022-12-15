@@ -5,6 +5,7 @@ import time
 import threading
 import hashlib
 import os
+import multiprocessing
 from argparse import ArgumentParser
 
 
@@ -83,7 +84,7 @@ def worker(thread_id):
 
 
 for thread_id in range(thread_count):
-    threading.Thread(target=worker, args=[thread_id]).start()
+    multiprocessing.Process(target=worker, args=[thread_id]).start()
 
 
 while threading.active_count() > 1:
