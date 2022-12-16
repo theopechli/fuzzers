@@ -1,3 +1,4 @@
+use sha2::{Digest, Sha256};
 use std::collections::BTreeSet;
 use std::io;
 use std::os::unix::process::ExitStatusExt;
@@ -64,6 +65,11 @@ fn worker(
 
             let exit = fuzz(&filename, &fuzz_input)?;
             if let Some(11) = exit.signal() {
+                let mut hasher = Sha256::new();
+                let input = fuzz_input.clone();
+                hasher.update(&input);
+                let result = hasher.finalize();
+                std::fs::write(format!("./crashes/crash_{:#04x}", result), &input)?;
                 statistics.crashes.fetch_add(1, Ordering::SeqCst);
             }
         }
@@ -84,7 +90,7 @@ fn main() -> io::Result<()> {
 
     let stats = Arc::new(Statistics::default());
 
-    for thread_id in 0..1 {
+    for thread_id in 0..2 {
         let stats = stats.clone();
         let corpus = corpus.clone();
         std::thread::spawn(move || worker(thread_id, stats, corpus));
