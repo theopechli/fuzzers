@@ -20,12 +20,16 @@ const BATCH_SIZE: usize = 10;
 struct Cli {
     #[arg(short, long, value_name = "FUZZ TARGET")]
     binary: PathBuf,
+
     #[arg(short, long)]
     flag: String,
+
     #[arg(short, long)]
     corpus: PathBuf,
+
     #[arg(short, long)]
     output: PathBuf,
+
     #[arg(short, long)]
     threads: usize,
 }
